@@ -1,42 +1,41 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import BotonEliminacionProducto from "./BotonEliminacionProducto.js";
+import BotonEliminacionClientes from "./BotonEliminacionClientes";
 
 
 
 
 
-const TablaProductos = ({ productos, eliminarProducto, editarProducto }) =>   {
+const TablaClientes = ({ clientes, eliminarCliente, editarCliente }) =>   {
 
   
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Tabla de Productos</Text>
+      <Text style={styles.titulo}>Tabla de Clientes</Text>
 
       <View style={[styles.fila, styles.encabezado]}>
         <Text style={[styles.celda, styles.textoEncabezado]}>Nombre</Text>
-        <Text style={[styles.celda, styles.textoEncabezado]}>Precio</Text>
+        <Text style={[styles.celda, styles.textoEncabezado]}>Apellido</Text>
+        <Text style={[styles.celda, styles.textoEncabezado]}>Edad</Text>
         <Text style={[styles.celdaAcciones, styles.textoEncabezado]}>Acciones</Text>
       </View>
 
       <ScrollView>
-        {productos.map((item) =>(
+        {clientes.map((item) =>(
           <View key={item.id} style={styles.fila}>
               <Text style={styles.celda}>{item.nombre}</Text>
-              <Text style={styles.celda}>${item.precio}</Text>
+              <Text style={styles.celda}>{item.apellido}</Text>
+              <Text style={styles.celda}>{item.edad}</Text>
 
               <View style={[styles.celdaAcciones]}>
 
                 <TouchableOpacity 
                     style={styles.botonActualizar}
-                    onPress={()=> editarProducto(item)}
+                    onPress={()=> editarCliente(item)}
                     >
                       <Text>🪄</Text>
-                  </TouchableOpacity>
-
-                  <BotonEliminacionProducto id={item.id} 
-                  eliminarProducto={eliminarProducto}
-                  editarProducto={editarProducto}/>
+                    </TouchableOpacity>
+                  <BotonEliminacionClientes id={item.id} eliminarCliente={eliminarCliente}/>
               </View>
 
           </View>
@@ -76,6 +75,13 @@ const styles = StyleSheet.create({
     fontSize:16,
     textAlign:"center"
   },
+  celdaAcciones:{
+    flex:1,
+    flexDirection:"row",
+    justifyContent:"center",
+    alignItems:"center",
+    gap:8
+  },
 
   botonActualizar:{
     padding:4,
@@ -86,13 +92,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f3f7"
 
   },
-  celdaAcciones:{
-    flex:1,
-    flexDirection:"row",
-    justifyContent:"center",
-    alignItems:"center",
-    gap:8
-  },
 
   textoEncabezado:{
     fontWeight: "bold",
@@ -102,4 +101,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default TablaProductos;
+export default TablaClientes;

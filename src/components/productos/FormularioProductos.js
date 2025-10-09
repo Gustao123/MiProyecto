@@ -1,49 +1,34 @@
 import React, { use, useState } from "react";
 import {View, TextInput, Button, StyleSheet,Text} from "react-native";
-import {db} from "../../database/firebaseconfig";
-import { collection, addDoc } from "firebase/firestore";
 
 
-const FormularioProductos =({ cargarDatos }) =>{
-  const [nombre, setNombre] = useState("");
-  const [precio, setPrecio] = useState("");
 
-  const guardarProducto = async () =>{
-    if(nombre && precio) {
-      try {
-        await addDoc(collection(db, "productos"),{
-          nombre: nombre,
-          precio: parseFloat(precio),
-        });
-        setNombre("");
-        setPrecio("");
-        cargarDatos("");
-      }catch (error){
-        console.error("Error al registrar producto:", error);
-      }
-      
-    }else{
-      alert("Por favor, complete todos los campos")
-    }
-  };
+
+const FormularioProductos =({ nuevoProducto, manejoCambio, guardarProducto, actualizarProducto, modoEdicion   }) =>{
+
+
+
 
   return(
     <View style={styles.container}>
-      <Text style={styles.titulo}>Registro de Productos</Text>
+      <Text style={styles.titulo}>{modoEdicion ? "Actualizar Producto" : "Registro de Producto"}</Text>
 
       <TextInput 
       style={styles.input}
       placeholder="Nombre del producto"
-      value={nombre} 
-      onChangeText={setNombre}/>
+      value={nuevoProducto.nombre} 
+      onChangeText={(nombre)=> manejoCambio("nombre", nombre)}/>
 
       <TextInput 
       style={styles.input}
       placeholder="Precio"
-      value={precio} 
-      onChangeText={setPrecio}/>
+      value={nuevoProducto.precio} 
+      onChangeText={(precio)=>manejoCambio("precio", precio)}
+      keyboardType="numeric"
+      />
 
-      <Button title="Guardar" onPress={guardarProducto}/>
+      <Button title={modoEdicion ? "Actualizar" : "Guardar"}
+      onPress={modoEdicion ? actualizarProducto : guardarProducto}/>
     </View>
   )
 };

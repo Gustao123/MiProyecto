@@ -8,8 +8,8 @@ import Clientes from "./src/views/Clientes";
 export default function App(){
   return(
     <>
-    <Productos/>
-
+   
+    <Clientes/>
     </>
   )
 }
