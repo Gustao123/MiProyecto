@@ -3,7 +3,7 @@ import {View, TextInput, Button, StyleSheet,Text} from "react-native";
 
 
 
-const FormularioClientes =({ nuevoCliente, manejoCambio, guardarCliente, actualizarCliente, modoEdicion   }) =>{
+const FormularioUsuarios =({ nuevoUsuario, manejoCambio, guardarUsuario, actualizarUsuario, modoEdicion   }) =>{
 
 
 
@@ -11,30 +11,36 @@ const FormularioClientes =({ nuevoCliente, manejoCambio, guardarCliente, actuali
 
   return(
     <View style={styles.container}>
-      <Text style={styles.titulo}>{modoEdicion ? "Actualizar Cliente" : "Registro de Cliente"}</Text>
+      <Text style={styles.titulo}>{modoEdicion ? "Actualizar Usuario" : "Registro de Usuario"}</Text>
 
       <TextInput 
       style={styles.input}
-      placeholder="Nombre del cliente"
-      value={nuevoCliente.nombre} 
+      placeholder="Nombre del usuario"
+      value={nuevoUsuario.nombre} 
       onChangeText={(nombre)=> manejoCambio("nombre", nombre)}/>
 
       <TextInput 
       style={styles.input}
-      placeholder="Apellido"
-      value={nuevoCliente.apellido} 
-      onChangeText={(apellido)=>manejoCambio("apellido", apellido)}/>
+      placeholder="Correo"
+      value={nuevoUsuario.correo} 
+      onChangeText={(correo)=>manejoCambio("correo", correo)}/>
+
+      <TextInput 
+      style={styles.input}
+      placeholder="Telefono"
+      value={nuevoUsuario.telefono} 
+      onChangeText={(telefono)=>manejoCambio("telefono", telefono)}/>
 
       <TextInput 
       style={styles.input}
       placeholder="Edad"
-      value={nuevoCliente.edad} 
+      value={nuevoUsuario.edad} 
       onChangeText={(edad)=>manejoCambio("edad", edad)}
       keyboardType="numeric"/>
 
 
       <Button title={modoEdicion ? "Actualizar" : "Guardar"}
-            onPress={modoEdicion ? actualizarCliente : guardarCliente}/>
+            onPress={modoEdicion ? actualizarUsuario : guardarUsuario}/>
     </View>
   )
 };
@@ -54,4 +60,4 @@ const styles= StyleSheet.create({
   },
 })
 
-export default FormularioClientes;
+export default FormularioUsuarios;
