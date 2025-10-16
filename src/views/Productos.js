@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from "react";
-import {View, StyleSheet} from "react-native";
+import {View, StyleSheet, Button} from "react-native";
 import { db } from "../database/firebaseconfig";
 import { collection, doc,deleteDoc, getDocs, addDoc, updateDoc } from "firebase/firestore";
 import FormularioProductos from "../components/productos/FormularioProductos";
 import TablaProductos from "../components/productos/TablaProductos";
+import { signOut } from "firebase/auth";
+import { auth } from "../database/firebaseconfig";
 
 
 const Productos = () =>{
+
+  const cerrarSesion = async () => {
+  try {
+    await signOut(auth);
+    console.log("Sesión cerrada correctamente");
+    // Aquí puedes redirigir o limpiar el estado
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+};
 
 const eliminarProducto = async (id)=>{
       try{
@@ -101,19 +113,25 @@ const eliminarProducto = async (id)=>{
 
   return(
     <View style={styles.container}>
+
+      
       <FormularioProductos 
       nuevoProducto={nuevoProducto}
       manejoCambio={manejoCambio}
       guardarProducto={guardarProducto}
       actualizarProducto={actualizarProducto}
       modoEdicion={modoEdicion}
-      
+      cerrarSesion={cerrarSesion}
       />
 
       <TablaProductos 
       productos={productos}
       editarProducto={editarProducto}
       eliminarProducto={eliminarProducto}/>
+
+      <Button title="Cerrar Sesión" onPress={cerrarSesion} />
+
+      
     </View>
   );
 };
@@ -125,4 +143,4 @@ const styles= StyleSheet.create({
   }
 })
 
-export default Productos
+export default Productos;
