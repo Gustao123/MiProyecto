@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
-import {onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { View, Button } from "react-native";
 import { auth } from "./src/database/firebaseconfig";
 import Login from "./src/views/Login";
 import Productos from "./src/views/Productos";
@@ -16,11 +16,8 @@ export default function App() {
     return unsubscribe;
   }, []);
 
- 
-
   const cerrarSesion = async () => {
-  
-      await signOut(auth);
+    await signOut(auth);
   };
 
   if (!usuario) {
@@ -31,7 +28,7 @@ export default function App() {
   // Si hay usuario autenticado, mostrar productos
   return (
     <View style={{ flex: 1 }}>
-      <Productos cerrarSesion={cerrarSesion} />
+      <Productos cerrarSesion={cerrarSesion}/>
     </View>
   );
 }

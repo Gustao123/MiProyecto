@@ -1,105 +1,87 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import BotonEliminacionProducto from "./BotonEliminacionProducto.js";
+import BotonEliminarProducto from "./BotonEliminacionProducto";
 
-
-
-
-
-const TablaProductos = ({ productos, eliminarProducto, editarProducto }) =>   {
-
-  
+const TablaProductos = ({ productos, eliminarProducto, editarProducto }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Tabla de Productos</Text>
 
+      {/* Encabezado de la tabla */}
       <View style={[styles.fila, styles.encabezado]}>
         <Text style={[styles.celda, styles.textoEncabezado]}>Nombre</Text>
         <Text style={[styles.celda, styles.textoEncabezado]}>Precio</Text>
-        <Text style={[styles.celdaAcciones, styles.textoEncabezado]}>Acciones</Text>
+        <Text style={[styles.celda, styles.textoEncabezado]}>Acciones</Text>
       </View>
 
+      {/* Contenido de la tabla */}
       <ScrollView>
-        {productos.map((item) =>(
+        {productos.map((item) => (
           <View key={item.id} style={styles.fila}>
-              <Text style={styles.celda}>{item.nombre}</Text>
-              <Text style={styles.celda}>${item.precio}</Text>
+            <Text style={styles.celda}>{item.nombre}</Text>
+            <Text style={styles.celda}>${item.precio}</Text>
 
-              <View style={[styles.celdaAcciones]}>
+            {/* Celda de acciones */}
+            <View style={[styles.celdaAcciones]}>
 
-                <TouchableOpacity 
-                    style={styles.botonActualizar}
-                    onPress={()=> editarProducto(item)}
-                    >
-                      <Text>🪄</Text>
-                  </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.botonActualizar}
+                onPress={() => editarProducto(item)}
+              >
+                <Text>✏️</Text>
+              </TouchableOpacity>
 
-                  <BotonEliminacionProducto id={item.id} 
-                  eliminarProducto={eliminarProducto}
-                  editarProducto={editarProducto}/>
-              </View>
-
+              <BotonEliminarProducto id={item.id} eliminarProducto={eliminarProducto} />
+            </View>
           </View>
         ))}
       </ScrollView>
-
     </View>
-  )
+  );
 };
 
-
-
 const styles = StyleSheet.create({
-  container:{
-    flex:1,
+  container: { 
+    flex: 1, 
     padding: 20,
     alignSelf: "stretch"
   },
-  titulo:{
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 30,
-  },
-  fila:{
-    flexDirection:"row",
+  titulo: { fontSize: 22, fontWeight: "bold", marginBottom: 10 },
+  fila: {
+    flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor:"#ccc",
-    paddingVertical:6,
-    alignItems:"center"
+    borderColor: "#ccc",
+    paddingVertical: 6,
+    alignItems: "center",
   },
-  encabezado:{
-    backgroundColor:"#f0f0f0",
-
+  encabezado: {
+    backgroundColor: "#f0f0f0",
   },
-  celda:{
-    flex:1,
-    fontSize:16,
-    textAlign:"center"
+  celda: {
+    flex: 1,
+    fontSize: 16,
+    textAlign: "center",
   },
-
-  botonActualizar:{
-    padding:4,
-    borderRadius:5,
-    alignItems:"center",
-    justifyContent:"center",
-    alignSelf: "center",
-    backgroundColor: "#f3f3f7"
-
+  celdaAcciones: {
+    flex: 1,
+    flexDirection: "row", 
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
   },
-  celdaAcciones:{
-    flex:1,
-    flexDirection:"row",
-    justifyContent:"center",
-    alignItems:"center",
-    gap:8
-  },
-
-  textoEncabezado:{
+  textoEncabezado: {
     fontWeight: "bold",
-    fontSize:17,
-    textAlign:"center"
+    fontSize: 17,
+    textAlign: "center",
   },
+  botonActualizar: {
+    padding: 4,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    backgroundColor: "#f3f3f7",
+  }
 });
-
 
 export default TablaProductos;
