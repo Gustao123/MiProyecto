@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Button } from "react-native";
 import { db } from "../database/firebaseconfig.js";
-import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc, query, where, orderBy, limit } from "firebase/firestore";
 import FormularioProductos from "../components/productos/FormularioProductos.js";
 import TablaProductos from "../components/productos/TablaProductos.js";
 
@@ -91,8 +91,171 @@ const Productos = ({cerrarSesion}) => {
     setModoEdicion(true);
   };
 
+
+  const pruebaConsulta1 = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("pais", "==", "Guatemala"),
+        orderBy("poblacion", "desc"),
+        limit(2)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Consulta 1 --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Poblacion: ${data.poblacion}, Pais: ${data.pais}, Region: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades")
+    }
+  } 
+
+  const consultaHonduras = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("pais", "==", "Honduras"),
+        where("poblacion", ">", 700),
+        orderBy("nombre", "asc"),
+        limit(3)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Consulta 2 --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Población: ${data.poblacion}, País: ${data.pais}, Región: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades:", error)
+    }
+  };
+
+  const consultaSalvadoreña = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("pais", "==", "El Salvador"),
+        orderBy("poblacion", "desc"),
+        limit(2)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Consulta 3 --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Poblacion: ${data.poblacion}, Pais: ${data.pais}, Region: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades", error)
+    }
+  };
+
+  const consultaCentroamerica = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("region", "==", "América Central"),
+        where("poblacion", "<=", 300),
+        orderBy("pais", "desc"),
+        limit(4)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Consulta 4 --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Población: ${data.poblacion}, País: ${data.pais}, Región: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades:", error)
+    }
+  };
+
+  const consultaPoblacionGrande = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("poblacion", ">", 900),
+        orderBy("nombre", "asc"),
+        limit(3)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Consulta 5 --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Población: ${data.poblacion}, País: ${data.pais}, Región: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades:", error)
+    }
+  };
+
+  const consultaGuatemala = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("pais", "==", "Guatemala"),
+        orderBy("poblacion", "desc"),
+        limit(5)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Ciudades de Guatemala --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Población: ${data.poblacion}, País: ${data.pais}, Región: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades:", error)
+    }
+  };
+
+  const consultaPoblacionMedia = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        where("poblacion", ">=", 200),
+        where("poblacion", "<=", 600),
+        orderBy("pais", "asc"),
+        limit(5)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Ciudades con población entre 200k y 600k --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Población: ${data.poblacion}, País: ${data.pais}, Región: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades:", error)
+    }
+  };
+
+  const consultaTopPoblacion = async ()=>{
+    try{
+      const q = query(
+        collection(db, "ciudades"),
+        orderBy("poblacion", "desc"),
+        limit(5)
+      );
+      const snapshot = await getDocs(q);
+      console.log("------- Top 5 ciudades por población --------")
+      snapshot.forEach((doc)=>{
+        const data = doc.data();
+        console.log (`ID: ${doc.id}, Nombre:${data.nombre}, Población: ${data.poblacion}, País: ${data.pais}, Región: ${data.region}`)
+      });
+    }catch (error){
+      console.error("Error al cargar las ciudades:", error)
+    }
+  };
+
   useEffect(() => {
     cargarDatos();
+    pruebaConsulta1();
+    consultaHonduras();
+    consultaSalvadoreña();
+    consultaCentroamerica();
+    consultaPoblacionGrande();
+    consultaGuatemala();
+    consultaPoblacionMedia();
+    consultaTopPoblacion();
   }, []);
 
   return (
@@ -114,9 +277,12 @@ const Productos = ({cerrarSesion}) => {
         eliminarProducto={eliminarProducto}
       />
 
+      
+
       <Button title="Cerrar Sesión" onPress={cerrarSesion} />
       
     </View>
+
   );
 };
 
