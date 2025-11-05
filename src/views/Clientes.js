@@ -6,6 +6,10 @@ import FormularioClientes from "../components/clientes/FormularioClientes";
 import TablaClientes from "../components/clientes/TablaClientes";
 import TituloPromedio from "../components/clientes/TituloPromedio";
 
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing"
+import * as Clipboard from "expo-clipboard";
+
 
 const Clientes = () =>{
 
@@ -59,6 +63,57 @@ const [clientes, setClientes] = useState([]);
         }
       }catch (error){
         console.error("Error al registrar cliente:", error)
+      }
+    };
+
+
+    const cargarDatosFirestore = async (nombreColeccion) => {
+      if (typeof nombreColeccion !== 'string') {
+        console.error("Error: Se requiere un nombre de colección válido.");
+        return;
+      }
+    
+      try {
+        const datosExportados = {};
+        // Obtener la referencia a la colección específica
+        const snapshot = await getDocs(collection(db, nombreColeccion));
+        // Mapear los documentos y agregarlos al objeto de resultados
+        datosExportados[nombreColeccion] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+    
+        return datosExportados;
+      } catch (error) {
+        console.error(`Error extrayendo datos de la colección "${nombreColeccion}": `, error);
+      }
+    };
+    
+    const exportDatos = async () => {
+      try {
+        const datos = await cargarDatosFirestore("productos");
+        console.log("Datos cargados:", datos);
+        // Formatea los datos para el archivo y el portapapeles
+        const jsonString = JSON.stringify(datos, null, 2);
+        const baseFileName = "datos_firebase.txt";
+        // Copiar datos al portapapeles (JsonString):
+        await Clipboard.setStringAsync(jsonString);
+        console.log("Datos copiados al portapapeles.");
+        // Verificar si la función compartir está disponible en tu dispositivo
+        if (!await Sharing.isAvailableAsync()) {
+          return;
+        }
+        // Guardar archivo temporalmente
+        const fileUri = FileSystem.cacheDirectory + baseFileName;
+        await FileSystem.writeAsStringAsync(fileUri, jsonString);
+        await Sharing.shareAsync(fileUri, {
+          mimeType: "text/plain",
+          dialogTitle: "Compartir datos de Firebase (JSON)"
+        });
+        alert("Datos copiados al portapapeles y listos para compartir.");
+      } catch (error) {
+        console.error("Error al exportar y compartir:", error);
+        alert("Error al exportar y compartir: " + error.message);
       }
     };
 
@@ -152,6 +207,11 @@ const [clientes, setClientes] = useState([]);
       />
       <TituloPromedio 
       promedio={promedio} />
+
+      <View style={{ marginVertical: 10 }}>
+        <Button title="Exportar" onPress={exportDatos} />
+      </View>
+      
       
     </View>
   );

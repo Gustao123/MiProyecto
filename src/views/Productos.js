@@ -4,6 +4,9 @@ import { db } from "../database/firebaseconfig.js";
 import { collection, getDocs, doc, deleteDoc, addDoc, updateDoc, query, where, orderBy, limit } from "firebase/firestore";
 import FormularioProductos from "../components/productos/FormularioProductos.js";
 import TablaProductos from "../components/productos/TablaProductos.js";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing"
+import * as Clipboard from "expo-clipboard";
 
 const Productos = ({cerrarSesion}) => {
 
@@ -16,6 +19,9 @@ const Productos = ({cerrarSesion}) => {
     nombre: "",
     precio: "",
   });
+
+
+    const colecciones = ["productos", "clientes", "ciudades"];
 
   const manejoCambio = (nombre, valor) => {
     setNuevoProducto((prev) => ({
@@ -40,6 +46,23 @@ const Productos = ({cerrarSesion}) => {
       console.error("Error al registrar producto:", error);
     }
   };
+
+  const cargarDatosFirebaseCompletos = async () => {
+  try {
+    const datosExportados = {};
+      for (const col of colecciones) {
+      const snapshot = await getDocs(collection(db, col));
+      datosExportados[col] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+  }));
+  }
+    return datosExportados;
+  }   catch (error) {
+    console.error("Error extrayendo datos: ", error);
+    }
+  };
+
 
   const actualizarProducto = async () => {
     try {
@@ -72,6 +95,57 @@ const Productos = ({cerrarSesion}) => {
       console.error("Error al obtener documentos:", error);
     }
   };
+
+
+  const cargarDatosFirestore = async (nombreColeccion) => {
+  if (typeof nombreColeccion !== 'string') {
+    console.error("Error: Se requiere un nombre de colección válido.");
+    return;
+  }
+
+  try {
+    const datosExportados = {};
+    // Obtener la referencia a la colección específica
+    const snapshot = await getDocs(collection(db, nombreColeccion));
+    // Mapear los documentos y agregarlos al objeto de resultados
+    datosExportados[nombreColeccion] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return datosExportados;
+  } catch (error) {
+    console.error(`Error extrayendo datos de la colección "${nombreColeccion}": `, error);
+  }
+};
+
+const exportDatos = async () => {
+  try {
+    const datos = await cargarDatosFirebaseCompletos();
+    console.log("Datos cargados:", datos);
+    // Formatea los datos para el archivo y el portapapeles
+    const jsonString = JSON.stringify(datos, null, 2);
+    const baseFileName = "datos_firebase.txt";
+    // Copiar datos al portapapeles (JsonString):
+    await Clipboard.setStringAsync(jsonString);
+    console.log("Datos copiados al portapapeles.");
+    // Verificar si la función compartir está disponible en tu dispositivo
+    if (!await Sharing.isAvailableAsync()) {
+      return;
+    }
+    // Guardar archivo temporalmente
+    const fileUri = FileSystem.cacheDirectory + baseFileName;
+    await FileSystem.writeAsStringAsync(fileUri, jsonString);
+    await Sharing.shareAsync(fileUri, {
+      mimeType: "text/plain",
+      dialogTitle: "Compartir datos de Firebase (JSON)"
+    });
+    alert("Datos copiados al portapapeles y listos para compartir.");
+  } catch (error) {
+    console.error("Error al exportar y compartir:", error);
+    alert("Error al exportar y compartir: " + error.message);
+  }
+};
 
   const eliminarProducto = async (id) => {
     try {
@@ -258,6 +332,9 @@ const Productos = ({cerrarSesion}) => {
     consultaTopPoblacion();
   }, []);
 
+
+  
+
   return (
     <View style={styles.container}>
 
@@ -276,6 +353,14 @@ const Productos = ({cerrarSesion}) => {
         editarProducto={editarProducto} 
         eliminarProducto={eliminarProducto}
       />
+
+      <View style={{ marginVertical: 10 }}>
+        <Button title="Exportar" onPress={exportDatos} />
+      </View>
+
+      <View style={{ marginVertical: 10 }}>
+        <Button title="Exportar todo" onPress={exportDatos} />
+      </View>
 
       
 
