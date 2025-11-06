@@ -333,6 +333,126 @@ const exportDatos = async () => {
   }, []);
 
 
+  const arrayBufferToBase64 = (buffer) => {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+};
+
+/*const generarExcel = async () => {
+  try {
+    const datosParaExcel = [
+      { nombre: "Producto A", categoria: "Electrónicos", precio: 100 },
+      { nombre: "Producto B", categoria: "Ropa", precio: 50 },
+      { nombre: "Producto C", categoria: "Electrónicos", precio: 75 }
+    ];
+
+    const response = await fetch('https://3mxqsqgxvh.execute-api.us-east-2.amazonaws.com/generarExcel', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ datos: datosParaExcel })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    // Obtencion de ArrayBuffer y conversion a base64
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = arrayBufferToBase64(arrayBuffer);
+
+    // Ruta para guardar el archivo temporal
+    const fileUri = FileSystem.documentDirectory + "reporte.xlsx";
+
+    // Escribir el archivo en el sistema de archivos
+    await FileSystem.writeAsStringAsync(fileUri, base64, {
+      encoding: FileSystem.EncodingType.Base64
+    });
+
+    // Compartir el archivo generado
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        dialogTitle: 'Descargar Reporte Excel'
+      });
+    } else {
+      alert("Compartir no disponible. Revisa la consola para logs.");
+    }
+  } catch (error) {
+    console.error("Error generando Excel:", error);
+    alert("Error: " + error.message);
+  }
+};*/
+
+
+const generarExcel = async () => {
+  try {
+    // Obtener solo datos de "ciudades"
+    const ciudades = await cargarCiudadesFirebase();
+    if (ciudades.length === 0) {
+      throw new Error("No hay datos en la colección 'ciudades'.");
+    }
+
+    console.log("Ciudades para Excel:", ciudades);
+    const response = await fetch("https://3mxqsqgxvh.execute-api.us-east-2.amazonaws.com/generarExcel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ datos: ciudades })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error! ${response.status}`);
+    }
+
+    // Obtencion de ArrayBuffer y conversion a base64
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = arrayBufferToBase64(arrayBuffer);
+
+    // Ruta para guardar el archivo temporalmente
+    const fileUri = FileSystem.documentDirectory + "reporte_ciudades.xlsx";
+
+    // Escribir el archivo Excel
+    await FileSystem.writeAsStringAsync(fileUri, base64, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Compartir
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        dialogTitle: "Descargar Reporte de Ciudades"
+      });
+    } else {
+      alert("Compartir no disponible.");
+    }
+
+    alert("Excel de ciudades generado y listo para descargar!");
+  } catch (error) {
+    console.error("Error generando Excel:", error);
+    alert("Error: " + error.message);
+  }
+};
+
+
+const cargarCiudadesFirebase = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "ciudades"));
+    const ciudades = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return ciudades;
+  } catch (error) {
+    console.error("Error extrayendo ciudades:", error);
+    return [];
+  }
+};
+
+
   
 
   return (
@@ -360,6 +480,11 @@ const exportDatos = async () => {
 
       <View style={{ marginVertical: 10 }}>
         <Button title="Exportar todo" onPress={exportDatos} />
+      </View>
+
+
+      <View style={{ marginVertical: 10 }}>
+        <Button title="Exportar excel" onPress={generarExcel} />
       </View>
 
       
