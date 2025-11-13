@@ -8,6 +8,13 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing"
 import * as Clipboard from "expo-clipboard";
 
+import * as DocumentPicker from 'expo-document-picker';
+import { Alert } from 'react-native';
+
+
+
+
+
 const Productos = ({cerrarSesion}) => {
 
   const [modoEdicion, setModoEdicion] = useState(false);
@@ -453,6 +460,85 @@ const cargarCiudadesFirebase = async () => {
 };
 
 
+
+
+
+
+const extractGuardarMascotas = async () => {
+  try {
+    // Abrir selector de documentos para elegir archivo Excel
+    const result = await DocumentPicker.getDocumentAsync({
+      type: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"],
+      copyToCacheDirectory: true,
+    });
+
+    if (result.canceled || !result.assets || result.assets.length === 0) {
+      Alert.alert("Cancelado", "No se seleccionó ningún archivo.");
+      return;
+    }
+
+    const { uri, name } = result.assets[0];
+    console.log(`Archivo seleccionado: ${name} en ${uri}`);
+
+    // Leer el archivo como base64
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Enviar a Lambda para procesar
+    const response = await fetch("https://cpxhfwp9le.execute-api.us-east-2.amazonaws.com/extraerexcel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ archivoBase64: base64 }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP en Lambda: ${response.status}`);
+    }
+
+    const body = await response.json();
+    const { datos } = body;
+
+    if (!datos || !Array.isArray(datos) || datos.length === 0) {
+      Alert.alert("Error", "No se encontraron datos en el Excel o el archivo está vacío.");
+      return;
+    }
+
+    console.log("Datos extraídos del Excel:", datos);
+
+    // Guardar cada fila en la colección "mascotas"
+    let guardados = 0;
+    let errores = 0;
+
+    for (const mascota of datos) {
+      try {
+        // CORRECCIÓN: Usar sintaxis modular de Firestore v9+
+        await addDoc(collection(db, "mascotas"), {
+          nombre: mascota.nombre || "",
+          edad: parseInt(mascota.edad) || 0,
+          raza: mascota.raza || "",
+        });
+        guardados++;
+      } catch (error) {
+        console.error("Error guardando mascota:", mascota, error);
+        errores++;
+      }
+    }
+
+    Alert.alert(
+      "Éxito",
+      `Extraídos ${guardados} mascotas en la colección. Errores: ${errores}`,
+      [{ text: "OK" }]
+    );
+
+  } catch (error) {
+    console.error("Error en extractGuardarMascotas:", error);
+    Alert.alert("Error", `Error procesando el Excel: ${error.message}`);
+  }
+};
+
   
 
   return (
@@ -485,6 +571,10 @@ const cargarCiudadesFirebase = async () => {
 
       <View style={{ marginVertical: 10 }}>
         <Button title="Exportar excel" onPress={generarExcel} />
+      </View>
+
+      <View style={{ marginVertical: 10 }}>
+        <Button title="Extraer Mascotas desde Excel" onPress={extractGuardarMascotas} />
       </View>
 
       
